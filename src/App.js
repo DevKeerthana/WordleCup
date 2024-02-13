@@ -1,23 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:3001');
 
 function App() {
+  const [message, setMessage] = useState('');
+  const [chat, setChat] = useState([]);
+
+  useEffect(() => {
+    socket.on('message', (message) => {
+      setChat((prevChat) => [...prevChat, message]);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const sendMessage = () => {
+    if (message.trim() !== '') {
+      socket.emit('message', message);
+      setMessage('');
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div>
+        <button onClick={sendMessage}>Send Message</button>
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        />
+      </div>
+      <div>
+        {chat.map((msg, index) => (
+          <p key={index}>{msg}</p>
+        ))}
+      </div>
     </div>
   );
 }
