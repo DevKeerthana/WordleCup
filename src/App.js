@@ -23,7 +23,6 @@ function App() {
       setMessage('');
     }
   };
-
   return (
     <div className="App">
       <div>
